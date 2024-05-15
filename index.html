@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Only Pants</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,300;0,400;0,700;1,700&display=swap"
+    rel="stylesheet">
+
+  <!-- Feather Icon -->
+  <script src="https://unpkg.com/feather-icons"></script>
+
+  <!-- My Style -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+  <!-- Navbar Start -->
+  <nav class="navbar">
+    <a href="#" class="navbar-logo">Only<span>Pants</span></a>
+
+    <div class="navbar-nav">
+      <a href="#home">Home</a>
+      <a href="#about">About Us</a>
+      <a href="#menu">Items</a>
+      <a href="#products">Merch</a>
+      <a href="#contact">Contact</a>
+    </div>
+
+
+    <div class="navbar-extra">
+      <a href="#" id="search-btn"> <i data-feather="search"></i>
+        <a href="#" id="shopping-cart-btn"> <i data-feather="shopping-cart"></i>
+          <a href="#" id="hamburger-menu"> <i data-feather="menu"></i>
+          </a>
+    </div>
+
+    <!--  search form start -->
+    <div class="search-form">
+      <input type="search" id="search-box" placeholder="search here...">
+      <label for="search-box"><i data-feather="search"></i></label>
+    </div>
+    <!--  search form end-->
+
+    <!-- Shoping chart start -->
+    <!-- Shopping cart -->
+    <!-- Shopping cart -->
+    <div class="shopping-cart">
+      <!-- Total price element -->
+      <div class="cart-total">Total: IDR 0</div>
+      <!-- Cart items will be appended here -->
+      <!-- Payment section -->
+      <div class="payment-section">
+        <button id="checkout-btn">Checkout</button>
+      </div>
+    </div>
+
+
+
+    <!-- Shoping chart end -->
+
+  </nav>
+  <!--Navbar End   -->
+
+  <!-- Hero section start-->
+  <section class="hero" id="home">
+    <main class="content">
+      <h1>Welcome to <span>Only Pants!</span></h1>
+      <p>Best selected pants thrift.</p>
+      <a href="#" class="cta">Buy Now</a>
+    </main>
+  </section>
+  <!-- Hero section end-->
+
+  <!-- About Section start -->
+  <section id="about" class="about">
+    <h2><span>About</span> Us</h2>
+    <div class="row">
+      <div class="about-img">
+        <img src="img/about1.webp" alt="About Us">
+      </div>
+      <div class="content">
+        <h3>Only Pants official site and store</h3>
+        <p>Tempatnya para pecinta budaya streetwear menemukan koleksi terbaru yang menggabungkan gaya, kualitas, dan
+          ekspresi pribadi. Kami adalah destinasi online untuk streetwear culture.Kami hadir untuk menghadirkan
+          streetwear yang tidak hanya tentang fashion, tetapi juga tentang budaya dan gaya hidup.Kami hanya menyediakan
+          produk asli dan berkualitas tinggi. Setiap produk yang kami jual telah melalui seleksi ketat untuk memastikan
+          bahwa Anda mendapatkan produk yang memenuhi standar tertinggi dalam hal desain, kualitas, dan keaslian.</p>
+        </p>
+      </div>
+    </div>
+  </section>
+  <!-- About section end -->
+
+  <!-- Menu section start -->
+
+  <section id="menu" class="menu">
+    <h2>Our <span> Items</span></h2>
+    <p>There's some selected items you can buy, hope you like it. happy shopping!</p>
+
+    <div class="row">
+      <div class="menu-card">
+        <img src="img/menu/cargo.jpg" alt="cargo" class="menu-card-img">
+        <h3 class="menu-card-tittle">- Brown Cargo -</h3>
+        <p class="menu-card-price">IDR 1800k</p>
+        <div class="menu-icon">
+          <a href="#"><i data-feather="shopping-cart"></i></a>
+          <a href="#" class="item-detail-btn"><i data-feather="eye"></i></a>
+        </div>
+
+      </div>
+      <div class="menu-card">
+        <img src="img/menu/artwork.jpg" alt="artwork" class="menu-card-img">
+        <h3 class="menu-card-tittle">- Artwork Jeans -</h3>
+        <p class="menu-card-price">IDR 2200k</p>
+        <div class="menu-icon">
+          <a href="#"><i data-feather="shopping-cart"></i></a>
+          <a href="#" class="item-detail-btn"><i data-feather="eye"></i></a>
+        </div>
+
+      </div>
+      <div class="menu-card">
+        <img src="img/menu/carpenter.jpg" alt="carpenter" class="menu-card-img">
+        <h3 class="menu-card-tittle">- Brown Carpenter -</h3>
+        <p class="menu-card-price">IDR 500k</p>
+        <div class="menu-icon">
+          <a href="#"><i data-feather="shopping-cart"></i></a>
+          <a href="#" class="item-detail-btn"><i data-feather="eye"></i></a>
+        </div>
+
+      </div>
+      <div class="menu-card">
+        <img src="img/menu/faded.jpg" alt="faded" class="menu-card-img">
+        <h3 class="menu-card-tittle">- Black Faded Jeans -</h3>
+        <p class="menu-card-price">IDR 450k</p>
+        <div class="menu-icon">
+          <a href="#"><i data-feather="shopping-cart"></i></a>
+          <a href="#" class="item-detail-btn"><i data-feather="eye"></i></a>
+        </div>
+
+      </div>
+      <div class="menu-card">
+        <img src="img/menu/sweat.jpg" alt="sweat" class="menu-card-img">
+        <h3 class="menu-card-tittle">- Gray Sweatpants -</h3>
+        <p class="menu-card-price">IDR 200k</p>
+        <div class="menu-icon">
+          <a href="#"><i data-feather="shopping-cart"></i></a>
+          <a href="#" class="item-detail-btn"><i data-feather="eye"></i></a>
+        </div>
+
+      </div>
+      <div class="menu-card">
+        <img src="img/menu/metal.jpg" alt="metal" class="menu-card-img">
+        <h3 class="menu-card-tittle">- Artwork Metal Cargo -</h3>
+        <p class="menu-card-price">IDR 1000k</p>
+        <div class="menu-icon">
+          <a href="#"><i data-feather="shopping-cart"></i></a>
+          <a href="#" class="item-detail-btn"><i data-feather="eye"></i></a>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+  <!-- Menu section end -->
+
+  <!-- Product section start -->
+  <section class="products" id="products">
+    <h2><span>Best</span> Merch</h2>
+    <p>Don't forget to buy our merch!</p>
+    <div class="row">
+      <div class="product-card">
+        <div class="product-icon">
+          <a href="#"><i data-feather="shopping-cart"></i></a>
+          <a href="#" class="item-detail-btn"><i data-feather="eye"></i></a>
+        </div>
+
+        <div class="product-image">
+          <img src="img/products/vintage hat.jpg" alt="Product 1">
+        </div>
+        <div class="product-content">
+          <h3>Vintage Hat</h3>
+          <div class="product-price">IDR 170K <span>IDR 230K</span></div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-icon">
+          <a href="#"><i data-feather="shopping-cart"></i></a>
+          <a href="#" class="item-detail-btn"><i data-feather="eye"></i></a>
+        </div>
+
+        <div class="product-image">
+          <img src="img/products/messengerbag.jpg" alt="Product 1">
+        </div>
+        <div class="product-content">
+          <h3>Messenger Bag</h3>
+          <div class="product-price">IDR 300k <span>IDR 400K</span></div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-icon">
+          <a href="#"><i data-feather="shopping-cart"></i></a>
+          <a href="#" class="item-detail-btn"><i data-feather="eye"></i></a>
+        </div>
+
+        <div class="product-image">
+          <img src="img/products/loafers.jpg" alt="Product 1">
+        </div>
+        <div class="product-content">
+          <h3>Loafers</h3>
+          <div class="product-price">900k <span>IDR 1200K</span></div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-icon">
+          <a href="#"><i data-feather="shopping-cart"></i></a>
+          <a href="#"><i data-feather="eye"></i></a>
+        </div>
+
+        <div class="product-image">
+          <img src="img/products/leather jacket.jpg" alt="Product 1">
+        </div>
+        <div class="product-content">
+          <h3>Leather Jacket</h3>
+          <div class="product-price">IDR 1700K <span>IDR 2300K</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Product section end -->
+
+
+  <!-- Contact section start -->
+  <section id="contact" class="contact">
+    <h2>Contact<span> Us</span></h2>
+    <p>Hii! you can contact us if you want, or just leave your email and phone number below</p>
+
+    <div class="row">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15862.67804035891!2d106.83806718475205!3d-6.307078470944846!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69ed8e6c8c6927%3A0xa8957802e7316754!2sTj.%20Bar.%2C%20Kec.%20Jagakarsa%2C%20Kota%20Jakarta%20Selatan%2C%20Daerah%20Khusus%20Ibukota%20Jakarta!5e0!3m2!1sid!2sid!4v1692524703726!5m2!1sid!2sid"
+        allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="map"></iframe>
+
+      <form action="">
+        <div class="input-group">
+          <i data-feather="user"></i>
+          <input type="text" placeholder="name">
+        </div>
+        <div class="input-group">
+          <i data-feather="mail"></i>
+          <input type="text" placeholder="email">
+        </div>
+        <div class="input-group">
+          <i data-feather="phone"></i>
+          <input type="text" placeholder="phone number">
+        </div>
+        <button type="submit" class="btn">send</button>
+      </form>
+
+    </div>
+  </section>
+
+  <!-- Contact section end -->
+
+  <!-- Footer start -->
+  <footer>
+    <div class="socials">
+      <a href="https://instagram.com/rafi.fzan"><i data-feather="instagram"></i></a>
+      <a href="#"><i data-feather="twitter"></i></a>
+      <a href="https://facebook.com/Muhammad Rafi Fauzan"><i data-feather="facebook"></i></a>
+    </div>
+
+
+    <div class="links">
+      <a href="#home">Home</a>
+      <a href="#about">About Us</a>
+      <a href="#menu">Menu</a>
+      <a href="#contact">Contact</a>
+    </div>
+
+    <div class="credit">
+      <p>Created by <a href="">Baginda yang mulia Apre</a>. | &copy; 2024.</p>
+    </div>
+  </footer>
+
+  <!-- Footer end -->
+
+  <!-- Modal Box Item start -->
+  <div class="modal" id="item-detail-modal">
+    <div class="modal-container">
+      <a href="#" class="close-icon"><i data-feather="x"></i></a>
+      <div class="modal-content">
+        <img src="img/products/messengerbag.jpg" alt="Product 1">
+        <div class="product-content">
+          <h3>Messenger Bag</h3>
+          <p>Messenger Bag with good materials and cool design </p>
+          <h5>Made by Love</h5>
+          <div class="product-price">IDR 300K</div>
+          <a href="#"><i data-feather="sopping-cart"></i><span>add to cart</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <!-- Modal Box Item end -->
+
+  <!-- Feather Icon -->
+  <script>
+    feather.replace();
+  </script>
+
+  <!-- Javascript -->
+  <script src="js/script.js"></script>
+</body>
+
+</html>
