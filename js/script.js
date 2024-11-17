@@ -144,8 +144,6 @@ removeButtons.forEach((button) => {
 });
 
 // Handle checkout button click
-const checkoutButton = document.querySelector("#checkout-btn");
-checkoutButton.addEventListener("click", () => {
-  alert("Proceeding to checkout...");
-  // You can add more logic here for actual payment process
-});
+function goToPaymentPage() {
+  window.open("payment.html", "_blank");
+}

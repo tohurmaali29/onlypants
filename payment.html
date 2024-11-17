@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Page</title>
+    <link rel="shortcut icon" type="x-icon" href="img/onlypants.jpg" />
+    <link rel="stylesheet" href="css/payment.css" />
+    <script src="https://unpkg.com/feather-icons"></script>
+  </head>
+
+  <body>
+    <!-- Payment Section Start -->
+    <section id="payment" class="payment">
+      <h2><span>Secure</span> Payment</h2>
+      <p>Pilih dan proses dengan metode pembayaran yang tersedia.</p>
+      <div class="row">
+        <div class="payment-options">
+          <div class="payment-card">
+            <i data-feather="credit-card"></i>
+            <h3>Credit/Debit Card</h3>
+            <p>Pay securely using your credit or debit card.</p>
+          </div>
+          <div class="payment-card">
+            <i data-feather="dollar-sign"></i>
+            <h3>Bank Transfer</h3>
+            <p>Make a direct bank transfer to our account.</p>
+            <p>BCA = 123231000 An. Kelompok 4</p>
+          </div>
+          <div class="payment-card">
+            <i data-feather="smartphone"></i>
+            <h3>Mobile Payment</h3>
+            <p>Use mobile payment apps for a quick transaction.</p>
+          </div>
+        </div>
+
+        <div class="payment-form">
+          <form action="">
+            <div class="shipping-details">
+              <h3>Shipping Details</h3>
+              <div class="input-group">
+                <i data-feather="user"></i>
+                <input type="text" placeholder="Full Name" required />
+              </div>
+              <div class="input-group">
+                <i data-feather="map-pin"></i>
+                <input type="text" placeholder="Address" required />
+              </div>
+              <div class="input-group">
+                <i data-feather="phone"></i>
+                <input type="text" placeholder="Phone Number" required />
+              </div>
+            </div>
+
+            <h3>Payment Information</h3>
+            <div class="input-group">
+              <i data-feather="user"></i>
+              <input type="text" placeholder="Name on Card" required />
+            </div>
+            <div class="input-group">
+              <i data-feather="credit-card"></i>
+              <input type="text" placeholder="Card Number" required />
+            </div>
+            <div class="input-group">
+              <i data-feather="calendar"></i>
+              <input type="text" placeholder="Expiry Date (MM/YY)" required />
+            </div>
+            <div class="input-group">
+              <i data-feather="lock"></i>
+              <input type="text" placeholder="CVV" required />
+            </div>
+            <button type="submit" class="btn">Pay Now</button>
+          </form>
+        </div>
+      </div>
+    </section>
+    <!-- Payment Section End -->
+
+    <script>
+      feather.replace();
+    </script>
+  </body>
+</html>

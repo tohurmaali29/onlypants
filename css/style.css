@@ -391,7 +391,7 @@ footer .socials {
   padding: 2rem;
 }
 .menu .menu-icon,
-.products  .product-icon {
+.products .product-icon {
   display: flex;
   justify-content: center;
   gap: 0.7rem;
@@ -500,7 +500,7 @@ footer .links a {
 }
 
 footer .credit a {
-  color: var(--bg);
+  color: var(white);
   font-weight: 700;
 }
 
@@ -520,7 +520,6 @@ footer .credit a {
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.7);
 }
-
 
 /* Modal Animation */
 @keyframes animateModal {
@@ -659,57 +658,56 @@ footer .credit a {
   .modal-container {
     position: relative;
     width: 55%;
-}
+  }
 
-/* Mobile Phone  */
-@media (max-width: 450px) {
-  html {
-    font-size: 55%;
+  /* Mobile Phone  */
+  @media (max-width: 450px) {
+    html {
+      font-size: 55%;
+    }
+    .modal-content {
+      flex-wrap: wrap;
+    }
+    .modal-container {
+      position: relative;
+      width: 55%;
+    }
 
+    /* Shopping cart styles */
+    .shopping-cart {
+      position: absolute;
+      right: 20px;
+      top: 60px;
+      background: white;
+      width: 300px;
+      border: 1px solid #ddd;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      display: none; /* Initially hidden */
+      flex-direction: column;
+    }
 
-}
-.modal-content{
-  flex-wrap: wrap;
-}
-.modal-container {
-  position: relative;
-  width: 55%;
-}
+    .cart-total {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
 
-/* Shopping cart styles */
-.shopping-cart {
-  position: absolute;
-  right: 20px;
-  top: 60px;
-  background: white;
-  width: 300px;
-  border: 1px solid #ddd;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  display: none; /* Initially hidden */
-  flex-direction: column;
-}
+    .payment-section {
+      margin-top: 10px;
+    }
 
-.cart-total {
-  font-weight: bold;
-  margin-bottom: 10px;
-}
+    #checkout-btn {
+      background-color: #4caf50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+    }
 
-.payment-section {
-  margin-top: 10px;
+    #checkout-btn:hover {
+      background-color: #45a049;
+    }
+  }
 }
-
-#checkout-btn {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-  text-align: center;
-}
-
-#checkout-btn:hover {
-  background-color: #45a049;
-}
-

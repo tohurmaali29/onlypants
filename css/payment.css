@@ -1,0 +1,139 @@
+:root {
+  --primary: #3944bc;
+  --bg: #f3f3f3;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.payment {
+  padding: 7rem 7% 1.4rem;
+  background-color: var(--bg);
+  color: black;
+}
+
+.payment h2 {
+  text-align: center;
+  font-size: 2.6rem;
+  margin-bottom: 1rem;
+  color: rgb(19, 18, 18);
+}
+
+.payment h2 span {
+  color: var(--primary);
+}
+
+.payment p {
+  text-align: center;
+  max-width: 30rem;
+  margin: auto;
+  margin-bottom: 3rem;
+}
+
+.payment .row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+}
+
+.payment .payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  flex: 1 1 30rem;
+}
+
+.payment .payment-card {
+  text-align: center;
+  padding: 2rem;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  background-color: #fff;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.payment .payment-card i {
+  font-size: 2.5rem;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.payment .payment-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.payment .payment-card p {
+  font-size: 1rem;
+  color: #666;
+}
+
+.payment .payment-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.payment .payment-form {
+  flex: 1 1 45rem;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.payment .payment-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.payment .payment-form .shipping-details {
+  margin-bottom: 2rem;
+}
+
+.payment .payment-form .input-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: #f4f4f4;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.payment .payment-form .input-group i {
+  font-size: 1.5rem;
+  color: #888;
+}
+
+.payment .payment-form .input-group input {
+  flex: 1;
+  border: none;
+  background: none;
+  font-size: 1rem;
+  color: #333;
+}
+
+.payment .payment-form h3 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.payment .payment-form .btn {
+  padding: 1rem;
+  background-color: var(--primary);
+  color: #fff;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.payment .payment-form .btn:hover {
+  background-color: darken(var(--primary), 10%);
+}
