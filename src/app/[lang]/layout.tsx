@@ -56,7 +56,7 @@ export const viewport: Viewport = {
 export default async function StoreLayout({ children }: LayoutProps<"/[lang]">) {
   const { locale, t } = await getDictionary();
   return (
-    <html lang={await lang()} className={`${poppins.variable} ${archivo.variable}`}>
+    <html data-scroll-behavior="smooth" lang={await lang()} className={`${poppins.variable} ${archivo.variable}`}>
       <body className="flex min-h-dvh flex-col antialiased">
         <I18nProvider locale={locale} t={t}>
           <a

@@ -13,7 +13,7 @@
     "db:start": "supabase start -x realtime,vector,logflare,edge-runtime",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
-    "seed:admins": "tsx scripts/seed-admins.ts"
+    "seed:admins": "tsx scripts/seed-admins.mts"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.9.0",
