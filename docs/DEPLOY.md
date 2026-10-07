@@ -20,6 +20,16 @@ npx supabase db push --include-seed              # tabel, fungsi stok, cron, buc
    - **Connect → Transaction pooler** (port 6543): connection string untuk `DATABASE_URL`.
    - **Connect → Session pooler** (port 5432): untuk backup mingguan.
 
+### Pengaturan Auth (login customer & admin)
+
+Di dashboard Supabase → **Authentication**:
+
+1. **Sign In / Providers → Email**: aktifkan *Email provider* dan *Allow new users to sign up*. *Confirm email* boleh dinyalakan (lebih aman) atau dimatikan (lebih cepat untuk pembeli).
+2. **URL Configuration**:
+   - Site URL: `https://<nama-project>.vercel.app`
+   - Redirect URLs: tambahkan `https://<nama-project>.vercel.app/**`
+3. **Emails → SMTP Settings**: isi SMTP Gmail dari langkah 2 supaya email reset password/konfirmasi terkirim dari alamat toko. Email bawaan Supabase dibatasi beberapa email per jam.
+
 ## 2. Siapkan email (Gmail)
 
 1. Pakai akun Gmail toko, lalu aktifkan **2-Step Verification**.
@@ -58,7 +68,7 @@ Jalankan sekali dari laptop, dengan env yang mengarah ke Supabase **produksi** (
 OWNER_EMAIL=emailowner@gmail.com STAFF_EMAIL=emailstaff@gmail.com ADMIN_PASSWORD='password-kuat-sementara' npm run seed:admins
 ```
 
-Setelah itu login ke `/admin` dan ganti password di menu **Staff → Ganti password saya**.
+Setelah itu login lewat tombol **Masuk** di toko (atau buka `/admin`) dan ganti password di menu **Staff → Ganti password saya**.
 
 ## 5. Notifikasi otomatis tiap 10 menit
 

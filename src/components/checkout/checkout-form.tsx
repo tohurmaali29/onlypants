@@ -11,6 +11,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { checkCart } from "@/lib/actions/cart";
 import { checkout } from "@/lib/actions/checkout";
+import { getCheckoutProfileAction } from "@/lib/actions/account";
 import { formatPrice } from "@/lib/format";
 import { fmt } from "@/lib/i18n/interpolate";
 import { cn } from "@/lib/utils";
@@ -62,7 +63,48 @@ export function CheckoutForm() {
   const [formError, setFormError] = useState<string | null>(null);
   const [saved, setSaved] = useState<Partial<Record<Field, string>>>({});
   const [pending, startTransition] = useTransition();
+  const [profile, setProfile] = useState<Awaited<ReturnType<typeof getCheckoutProfileAction>>>(null);
+  const [addrChoice, setAddrChoice] = useState<string>("new");
+  const [formKey, setFormKey] = useState(0);
   const e = t.checkout.errors;
+
+  type Profile = NonNullable<typeof profile>;
+  const addressFields = (a: Profile["addresses"][number]) => ({
+    customerName: a.recipient,
+    phone: a.phone,
+    line: a.line,
+    district: a.district,
+    city: a.city,
+    province: a.province,
+    postalCode: a.postalCode,
+  });
+
+  // Signed-in customers: prefill from the profile and default address.
+  useEffect(() => {
+    getCheckoutProfileAction().then((p) => {
+      if (!p) return;
+      const def = p.addresses.find((a) => a.isDefault) ?? p.addresses[0];
+      setProfile(p);
+      setSaved((prev) => ({
+        ...prev,
+        customerName: p.name || prev.customerName,
+        email: p.email,
+        phone: p.phone || prev.phone,
+        ...(def ? addressFields(def) : {}),
+      }));
+      setAddrChoice(def?.id ?? "new");
+      setFormKey((k) => k + 1);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function chooseAddress(id: string) {
+    setAddrChoice(id);
+    const a = profile?.addresses.find((x) => x.id === id);
+    if (a) setSaved((prev) => ({ ...prev, ...addressFields(a) }));
+    else setSaved((prev) => ({ ...prev, line: "", district: "", city: "", province: "", postalCode: "" }));
+    setFormKey((k) => k + 1);
+  }
 
   // Restore the contact details from the last order on this device.
   useEffect(() => {
@@ -109,6 +151,7 @@ export function CheckoutForm() {
         ...values,
         locale,
         terms: fd.get("terms") === "on",
+        saveAddress: fd.get("saveAddress") === "on",
         website: String(fd.get("website") ?? ""),
         items: items.map((i) => ({ variantId: i.variantId, qty: i.qty })),
       } as Parameters<typeof checkout>[0]);
@@ -142,16 +185,51 @@ export function CheckoutForm() {
 
   return (
     <form onSubmit={onSubmit} noValidate className="grid gap-10 lg:grid-cols-[1fr_380px]">
-      <div className="space-y-10">
+      <div key={formKey} className="space-y-10">
+        {!profile && (
+          <p className="rounded-xl border border-line bg-surface px-4 py-3 text-sm text-muted">
+            <Link href={`/${locale}/login?next=/${locale}/checkout`} className="text-accent hover:underline">
+              {t.account.signInPrompt}
+            </Link>
+          </p>
+        )}
         <fieldset className="grid gap-4 sm:grid-cols-2">
           <legend className="mb-4 font-display text-lg uppercase">{t.checkout.contact}</legend>
           <Input name="customerName" label={t.checkout.name} autoComplete="name" required defaultValue={saved.customerName} error={errors.customerName} className="sm:col-span-2" />
-          <Input name="email" type="email" label={t.checkout.email} autoComplete="email" required defaultValue={saved.email} error={errors.email} />
+          <Input name="email" type="email" label={t.checkout.email} autoComplete="email" required defaultValue={saved.email} error={errors.email} readOnly={!!profile} />
           <Input name="phone" type="tel" inputMode="tel" label={t.checkout.phone} autoComplete="tel" required defaultValue={saved.phone} hint={t.checkout.phoneHint} error={errors.phone} />
         </fieldset>
 
         <fieldset className="grid gap-4 sm:grid-cols-2">
           <legend className="mb-4 font-display text-lg uppercase">{t.checkout.shipping}</legend>
+          {profile && profile.addresses.length > 0 && (
+            <div className="space-y-2 sm:col-span-2" role="radiogroup" aria-label={t.account.useAddress}>
+              {[...profile.addresses, null].map((a) => {
+                const id = a?.id ?? "new";
+                return (
+                  <label
+                    key={id}
+                    className={cn(
+                      "flex cursor-pointer gap-3 rounded-xl border p-3 text-sm",
+                      addrChoice === id ? "border-accent bg-accent/5" : "border-line hover:border-fg/40",
+                    )}
+                  >
+                    <input type="radio" name="addrChoice" checked={addrChoice === id} onChange={() => chooseAddress(id)} className="mt-1" />
+                    {a ? (
+                      <span>
+                        <span className="font-medium">{a.label || a.recipient}</span>
+                        <span className="block text-muted">
+                          {a.line}, {a.city} {a.postalCode}
+                        </span>
+                      </span>
+                    ) : (
+                      <span className="font-medium">{t.account.newAddress}</span>
+                    )}
+                  </label>
+                );
+              })}
+            </div>
+          )}
           <Input name="line" label={t.checkout.address} autoComplete="street-address" required defaultValue={saved.line} error={errors.line} className="sm:col-span-2" />
           <Input name="district" label={t.checkout.district} required defaultValue={saved.district} error={errors.district} />
           <Input name="city" label={t.checkout.city} autoComplete="address-level2" required defaultValue={saved.city} error={errors.city} />
@@ -163,6 +241,11 @@ export function CheckoutForm() {
             </label>
             <textarea id="f-note" name="note" rows={2} maxLength={500} className="input-field" />
           </div>
+          {profile && addrChoice === "new" && (
+            <label className="flex items-center gap-2 text-sm sm:col-span-2">
+              <input type="checkbox" name="saveAddress" defaultChecked className="size-4" /> {t.account.saveAddress}
+            </label>
+          )}
         </fieldset>
 
         {/* Honeypot: hidden from people, filled by bots. */}

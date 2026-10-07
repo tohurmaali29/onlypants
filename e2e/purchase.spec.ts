@@ -1,7 +1,8 @@
 import { expect, test } from "@playwright/test";
+import { addProofPhoto, PHOTO, staffLogin } from "./helpers";
 
 // Full customer + admin journey on the merch sweatpants (multi-stock, so the test is repeatable).
-test.setTimeout(180_000);
+test.setTimeout(300_000);
 
 test("customer checks out, admin quotes, customer uploads proof, admin approves and ships", async ({ page, browser }) => {
   await page.goto("/id/p/onlypants-gray-sweatpants");
@@ -32,13 +33,7 @@ test("customer checks out, admin quotes, customer uploads proof, admin approves 
   const code = orderUrl.match(/order\/([^?]+)/)![1];
 
   // Admin sets shipping
-  const admin = await (await browser.newContext()).newPage();
-  admin.on("dialog", (d) => d.accept());
-  await admin.goto("/admin/login");
-  await admin.fill("#email", "owner@onlypants.test");
-  await admin.fill("#password", "onlypants123");
-  await admin.click("button[type=submit]");
-  await admin.waitForURL("**/admin");
+  const admin = await staffLogin(browser, "staff@onlypants.test");
   await admin.goto(`/admin/orders?q=${code}&status=all`);
   await admin.getByRole("link", { name: code }).click();
   await admin.getByLabel("Ongkir (Rp)").fill("15000");
@@ -48,20 +43,36 @@ test("customer checks out, admin quotes, customer uploads proof, admin approves 
   // Customer pays
   await page.reload();
   await expect(page.getByText("Bayar dengan QRIS", { exact: false })).toBeVisible();
-  await page.setInputFiles("input[type=file]", "public/images/brand/mascot.jpg");
+  await page.setInputFiles("input[type=file]", PHOTO);
   await page.getByRole("button", { name: "Kirim bukti bayar" }).click();
   await expect(page.getByText("Bukti bayar terkirim").first()).toBeVisible();
 
-  // Admin approves and ships
+  // Staff approves, claims and packs with photo proof
   await admin.reload();
   await admin.getByRole("button", { name: /Setujui/ }).click();
-  await expect(admin.getByRole("button", { name: /Mulai kemas/ })).toBeVisible();
-  await admin.getByLabel("Nomor resi").fill("E2E123456");
-  await admin.getByLabel("Nomor resi").press("Enter");
-  await expect(admin.getByText("Dikirim").first()).toBeVisible();
+  await admin.getByRole("button", { name: /Mulai kemas/ }).click();
+  await expect(admin.getByText("(kamu)")).toBeVisible();
+  await addProofPhoto(admin);
+  await admin.getByRole("button", { name: /Simpan bukti packing/ }).click();
+  await expect(admin.getByText("Bukti packing tersimpan")).toBeVisible();
 
+  // Owner takes over shipping
+  const owner = await staffLogin(browser, "owner@onlypants.test");
+  await owner.goto(admin.url());
+  await expect(owner.getByText(/dipegang/)).toBeVisible();
+  await owner.getByLabel("Nomor resi").fill("E2E123456");
+  await addProofPhoto(owner);
+  await owner.getByRole("checkbox", { name: /ambil alih/ }).check();
+  await owner.getByRole("button", { name: /Kirim pesanan/ }).click();
+  await expect(owner.getByText("Dikirim").first()).toBeVisible();
+  await expect(owner.getByText(/ambil alih dari Staff OnlyPants/).first()).toBeVisible();
+
+  // Customer sees tracking and both proofs (no staff names)
   await page.reload();
   await expect(page.getByText("E2E123456")).toBeVisible();
+  await expect(page.getByText("Bukti pengemasan & pengiriman")).toBeVisible();
+  await expect(page.locator('img[alt^="Dikemas"], img[alt^="Diserahkan"]')).toHaveCount(2);
+  await expect(page.getByText("Staff OnlyPants")).toHaveCount(0);
 });
 
 test("order link with a wrong key shows 404 content", async ({ page }) => {

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | v1.1 — disetujui untuk eksekusi (pakai data dummy) |
+| Status | v1.2 — tambahan akun customer & bukti fulfillment (8 Okt 2026) |
 | Owner | @maali29_ |
 | Tanggal | 7 Oktober 2026 |
 | Snapshot lama | tag `v0-legacy` (commit `6a69bc5`) |
@@ -50,7 +50,7 @@ Struktur sekarang tidak bisa menampung stok, order, dan pembayaran, sehingga sit
 |---|---|
 | Model stok | Thrift = 1 varian qty 1. Merch = banyak varian ukuran, masing-masing punya qty |
 | Ongkir | Diinput **manual per order** oleh admin |
-| Checkout | **Guest only** (tanpa akun) |
+| Checkout | Guest tetap boleh. **Akun customer opsional** (email + password) untuk alamat tersimpan, checkout terisi otomatis, riwayat pesanan — v1.2 |
 | Batas bayar | **1 hari (24 jam)** |
 | Admin | 2 role: **Owner** dan **Staff** |
 | Notifikasi | **Email + WhatsApp** |
@@ -257,6 +257,29 @@ Harga disimpan sebagai **integer rupiah** (bukan float atau string "1800k").
 ## 13. Fase berikutnya
 - **Fase 2:** voucher/diskon, ongkir otomatis (Biteship/RajaOngkir), WA otomatis penuh, notifikasi "drop baru".
 - **Fase 3:** QRIS dinamis via Midtrans/Xendit (verifikasi otomatis via webhook), akun customer, wishlist.
+
+## 13a. Tambahan v1.2
+
+### Akun customer
+- Satu halaman **Masuk/Daftar** (`/[lang]/login`) untuk semua orang. Setelah masuk: owner/staff diarahkan ke `/admin`, customer ke **Akun saya**.
+- Daftar dengan nama, email, nomor WhatsApp, password (min. 8). Lupa password lewat link email.
+- Akun saya: profil, **alamat tersimpan** (satu alamat utama), **riwayat pesanan**.
+- Checkout saat login: kontak & alamat utama terisi otomatis, bisa pilih alamat lain, alamat baru bisa langsung disimpan. Pesanan terhubung ke akun.
+- Guest checkout tetap tersedia. Akun customer tidak pernah punya akses admin (akses admin hanya dari tabel `staff`).
+
+### Bukti fulfillment & take over
+- **Mulai kemas** = mengklaim pesanan → orang itu jadi **PIC**.
+- **Bukti packing** wajib (1–6 foto + keterangan) sebelum bisa kirim.
+- **Kirim** wajib kurir, nomor resi, dan 1–6 foto (paket diserahkan / struk resi).
+- Staff/owner lain yang mengerjakan pesanan milik PIC lain harus **mengambil alih** (tombol "Ambil alih" atau centang konfirmasi). Tercatat per langkah:
+  - packing oleh X, **ambil alih dari** orang yang mengklaim;
+  - pengiriman oleh Y, **ambil alih dari** orang yang packing.
+- Admin melihat nama, waktu, foto, keterangan. **Customer melihat foto & waktunya** (tanpa nama staff) di halaman pesanan.
+- Daftar pesanan admin: kolom **PIC** dan filter **Dipegang saya**.
+- Foto dikompres di browser (maks 1600 px JPEG) dan disimpan di bucket privat `fulfillment-photos`.
+
+### Katalog demo
+- 50 item tambahan (celana, outerwear, atasan, sepatu, aksesoris) dengan foto berlisensi bebas dari Openverse. Kredit di `public/images/products/demo/CREDITS.md`. **Wajib diganti** foto barang asli sebelum launch.
 
 ## 14. Open questions
 | # | Pertanyaan | Status / keputusan |
