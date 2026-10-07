@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { Menu, Search, ShoppingBag, X } from "lucide-react";
 import { cart, useCart } from "@/components/cart/cart-store";
 import { useI18n } from "@/components/i18n-provider";
@@ -22,10 +22,14 @@ function rememberLocale(to: Locale) {
   document.cookie = `${LOCALE_COOKIE}=${to}; path=/; max-age=31536000; samesite=lax`;
 }
 
-function LanguageSwitch() {
-  const { locale } = useI18n();
+/** Reads the pathname, so it must sit inside <Suspense> (routes with unknown params can't prerender it). */
+function LanguageSwitchLinks() {
   const pathname = usePathname();
-  const swap = (to: Locale) => pathname.replace(/^\/(id|en)(?=\/|$)/, `/${to}`);
+  return <LanguageSwitchView swap={(to) => pathname.replace(/^\/(id|en)(?=\/|$)/, `/${to}`)} />;
+}
+
+function LanguageSwitchView({ swap }: { swap: (to: Locale) => string }) {
+  const { locale } = useI18n();
   return (
     <div className="flex items-center rounded-full border border-line p-0.5 text-xs font-semibold">
       {(["id", "en"] as const).map((l) => (
@@ -47,22 +51,26 @@ function LanguageSwitch() {
   );
 }
 
+function LanguageSwitch() {
+  return (
+    <Suspense fallback={<LanguageSwitchView swap={(to) => `/${to}`} />}>
+      <LanguageSwitchLinks />
+    </Suspense>
+  );
+}
+
 export function Header() {
   const { locale, t } = useI18n();
   const { count, hydrated } = useCart();
-  const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
-  // Close overlays on navigation (state adjusted during render, not in an effect).
-  const [lastPath, setLastPath] = useState(pathname);
-  if (pathname !== lastPath) {
-    setLastPath(pathname);
+  const closeAll = () => {
     setMenuOpen(false);
     setSearchOpen(false);
-  }
+  };
 
   useEffect(() => {
     if (searchOpen) searchRef.current?.focus();
@@ -96,13 +104,13 @@ export function Header() {
           <Menu className="size-5" />
         </button>
 
-        <Link href={`/${locale}`} aria-label="OnlyPants home">
+        <Link href={`/${locale}`} onClick={closeAll} aria-label="OnlyPants home">
           <Logo />
         </Link>
 
         <nav className="ml-6 hidden items-center gap-6 text-sm md:flex" aria-label="Main">
           {links.map((l) => (
-            <Link key={l.href} href={l.href} className="text-muted transition-colors hover:text-fg">
+            <Link key={l.href} href={l.href} onClick={closeAll} className="text-muted transition-colors hover:text-fg">
               {l.label}
             </Link>
           ))}
@@ -142,6 +150,7 @@ export function Header() {
           onSubmit={(e) => {
             e.preventDefault();
             const q = searchRef.current?.value.trim();
+            setSearchOpen(false);
             router.push(`/${locale}/shop${q ? `?q=${encodeURIComponent(q)}` : ""}`);
           }}
         >
@@ -181,11 +190,11 @@ export function Header() {
               <X className="size-5" />
             </button>
           </div>
-          <Link href={`/${locale}`} className="py-3 text-lg" tabIndex={menuOpen ? 0 : -1}>
+          <Link href={`/${locale}`} onClick={closeAll} className="py-3 text-lg" tabIndex={menuOpen ? 0 : -1}>
             {t.nav.home}
           </Link>
           {links.map((l) => (
-            <Link key={l.href} href={l.href} className="py-3 text-lg" tabIndex={menuOpen ? 0 : -1}>
+            <Link key={l.href} href={l.href} onClick={closeAll} className="py-3 text-lg" tabIndex={menuOpen ? 0 : -1}>
               {l.label}
             </Link>
           ))}
