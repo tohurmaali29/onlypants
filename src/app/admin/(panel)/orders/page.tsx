@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { PageHeader, STATUS_LABEL, StatusBadge } from "@/components/admin/ui";
-import { listOrders, type OrderFilter } from "@/lib/admin/queries";
+import { listOrders, staffNames, type OrderFilter } from "@/lib/admin/queries";
 import { requireStaff } from "@/lib/auth";
 import { orderStatus, type OrderStatus } from "@/lib/db/schema";
 import { formatDateTime, formatPrice } from "@/lib/format";
@@ -25,17 +25,21 @@ const TABS: { value: OrderFilter["status"]; label: string }[] = [
 ];
 
 export default async function OrdersPage({ searchParams }: PageProps<"/admin/orders">) {
-  await requireStaff();
+  const me = await requireStaff();
   const sp = await searchParams;
   const raw = typeof sp.status === "string" ? sp.status : "open";
   const status = raw === "all" ? undefined : raw === "open" || (orderStatus.enumValues as string[]).includes(raw) ? (raw as OrderStatus | "open") : "open";
   const q = typeof sp.q === "string" ? sp.q.trim().slice(0, 60) : undefined;
   const page = Math.max(1, Number(sp.page) || 1);
-  const { rows, total, pages } = await listOrders({ status, q, page });
+  const mine = sp.mine === "1";
+  const [{ rows, total, pages }, names] = await Promise.all([
+    listOrders({ status, q, page, assigneeId: mine ? me.id : undefined }),
+    staffNames(),
+  ]);
 
   const href = (patch: Record<string, string | undefined>) => {
     const p = new URLSearchParams();
-    const merged = { status: status ?? "all", q, ...patch };
+    const merged = { status: status ?? "all", q, mine: mine ? "1" : undefined, ...patch };
     for (const [k, v] of Object.entries(merged)) if (v) p.set(k, v);
     return `/admin/orders?${p}`;
   };
@@ -66,6 +70,15 @@ export default async function OrdersPage({ searchParams }: PageProps<"/admin/ord
             </Link>
           );
         })}
+        <Link
+          href={href({ mine: mine ? undefined : "1", page: undefined })}
+          className={cn(
+            "shrink-0 rounded-full border px-3.5 py-1.5 text-sm",
+            mine ? "border-accent bg-accent/15 text-fg" : "border-line text-muted hover:text-fg",
+          )}
+        >
+          Dipegang saya
+        </Link>
       </div>
 
       <p className="mb-3 text-sm text-muted">{total} pesanan</p>
@@ -80,6 +93,7 @@ export default async function OrdersPage({ searchParams }: PageProps<"/admin/ord
                 <th className="px-4 py-3 font-medium">Pesanan</th>
                 <th className="px-4 py-3 font-medium">Customer</th>
                 <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium">PIC</th>
                 <th className="px-4 py-3 text-right font-medium">Total</th>
                 <th className="px-4 py-3 font-medium">Dibuat</th>
               </tr>
@@ -100,6 +114,7 @@ export default async function OrdersPage({ searchParams }: PageProps<"/admin/ord
                   <td className="px-4 py-3">
                     <StatusBadge status={o.status} />
                   </td>
+                  <td className="px-4 py-3 text-xs">{o.assigneeId ? (names[o.assigneeId] ?? "staff") : <span className="text-muted">—</span>}</td>
                   <td className="px-4 py-3 text-right tabular-nums">
                     {formatPrice(o.total ?? o.subtotal)}
                     {o.total == null && <p className="text-xs text-muted">+ ongkir</p>}

@@ -269,23 +269,20 @@ export async function rejectPayment(orderId: string, note: string, actorId: stri
   });
 }
 
+/** "Start packing": the actor claims the order and becomes its PIC. */
 export async function markProcessing(orderId: string, actorId: string) {
   return db.transaction(async (tx) => {
-    const order = await transition(tx, orderId, ["paid"], { status: "processing" });
+    const order = await transition(tx, orderId, ["paid"], { status: "processing", claimedBy: actorId, assigneeId: actorId });
     await event(tx, orderId, "processing", "packing", actorId);
     return order;
   });
 }
 
-export async function markShipped(orderId: string, trackingNumber: string, courier: string, actorId: string) {
+/** Correct the courier / tracking number of an order that has already shipped. */
+export async function updateTracking(orderId: string, trackingNumber: string, courier: string, actorId: string) {
   return db.transaction(async (tx) => {
-    const order = await transition(tx, orderId, ["paid", "processing", "shipped"], {
-      status: "shipped",
-      trackingNumber,
-      courier,
-      shippedAt: new Date(),
-    });
-    await event(tx, orderId, "shipped", `shipped: ${courier} ${trackingNumber}`, actorId);
+    const order = await transition(tx, orderId, ["shipped"], { trackingNumber, courier });
+    await event(tx, orderId, null, `tracking updated: ${courier} ${trackingNumber}`, actorId);
     return order;
   });
 }

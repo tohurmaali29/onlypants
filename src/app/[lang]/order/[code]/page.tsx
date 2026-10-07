@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { AlertTriangle, CheckCircle2, Circle, MessageCircle, Truck, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Circle, MessageCircle, Package, Truck, XCircle } from "lucide-react";
 import { ProofUpload } from "@/components/order/proof-upload";
 import { CopyButton, Countdown } from "@/components/order/widgets";
 import type { OrderStatus } from "@/lib/db/schema";
@@ -10,6 +10,8 @@ import { formatDateTime, formatPrice, waLink } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { fmt } from "@/lib/i18n/interpolate";
 import { findOrderByKey, getOrderDetail } from "@/lib/orders/service";
+import { getFulfillmentSteps } from "@/lib/orders/fulfillment";
+import { withPhotoUrls } from "@/lib/orders/fulfillment-photos";
 import { getSettings } from "@/lib/settings";
 import { cn } from "@/lib/utils";
 
@@ -24,10 +26,11 @@ async function OrderView({ params, searchParams }: PageProps<"/[lang]/order/[cod
   const found = key ? await findOrderByKey(code, key) : null;
   if (!found) notFound();
 
-  const [{ locale, t }, detail, { payment, store }] = await Promise.all([
+  const [{ locale, t }, detail, { payment, store }, steps] = await Promise.all([
     getDictionary(),
     getOrderDetail(found.id),
     getSettings(),
+    getFulfillmentSteps(found.id).then((s) => withPhotoUrls(s)),
   ]);
   const { order, items, proofs } = detail!;
   const status = order.status;
@@ -155,6 +158,33 @@ async function OrderView({ params, searchParams }: PageProps<"/[lang]/order/[cod
             </p>
           </div>
           <CopyButton value={order.trackingNumber} />
+        </section>
+      )}
+
+      {steps.length > 0 && (
+        <section className="rounded-[var(--radius-card)] border border-line bg-surface p-5" aria-labelledby="proof">
+          <h2 id="proof" className="mb-4 text-sm font-semibold">
+            {t.order.proofTitle}
+          </h2>
+          <div className="space-y-5">
+            {steps.map((st) => (
+              <div key={st.id}>
+                <p className="mb-2 flex items-center gap-2 text-sm">
+                  {st.stage === "packing" ? <Package className="size-4 text-accent" /> : <Truck className="size-4 text-accent" />}
+                  {st.stage === "packing" ? t.order.packedProof : t.order.shippedProof}
+                  <span className="text-xs text-muted">· {formatDateTime(st.createdAt, locale)}</span>
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {st.photoUrls.map((u, i) => (
+                    <a key={u} href={u} target="_blank" rel="noopener noreferrer" className="block size-24 overflow-hidden rounded-xl bg-surface-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL */}
+                      <img src={u} alt={`${st.stage === "packing" ? t.order.packedProof : t.order.shippedProof} ${i + 1}`} className="size-full object-cover" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
       )}
 
