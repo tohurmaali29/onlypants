@@ -14,14 +14,15 @@ import {
   cancelOrder,
   markCompleted,
   markProcessing,
-  markShipped,
   quoteShipping,
   rejectPayment,
   TransitionError,
+  updateTracking,
 } from "@/lib/orders/service";
+import { AssignedToOtherError, recordPacking, recordShipping, takeOver } from "@/lib/orders/fulfillment";
 import { createServiceClient } from "@/lib/supabase/server";
 
-export type ActionResult = { ok: true } | { ok: false; error: string };
+export type ActionResult = { ok: true } | { ok: false; error: string; assignedTo?: string };
 
 const id = z.uuid();
 
@@ -42,7 +43,11 @@ async function run(
     refresh();
     return { ok: true };
   } catch (e) {
-    if (e instanceof TransitionError) return { ok: false, error: "Status pesanan sudah berubah. Muat ulang halaman." };
+    if (e instanceof AssignedToOtherError) {
+      const [s] = await db.select({ name: schema.staff.name }).from(schema.staff).where(eq(schema.staff.userId, e.assigneeId));
+      return { ok: false, error: `Pesanan ini sedang dipegang ${s?.name ?? "staff lain"}.`, assignedTo: s?.name ?? "staff lain" };
+    }
+    if (e instanceof TransitionError) return { ok: false, error: e.message === "Upload packing proof first" ? "Upload bukti packing dulu." : "Status pesanan sudah berubah. Muat ulang halaman." };
     console.error(action, e);
     return { ok: false, error: "Terjadi kesalahan. Coba lagi." };
   }
@@ -75,13 +80,57 @@ export async function markProcessingAction(orderId: string) {
   return run("order.processing", orderId, async (actor) => ({ order: await markProcessing(orderId, actor) }));
 }
 
-export async function markShippedAction(orderId: string, input: { tracking: string; courier: string }) {
+export async function updateTrackingAction(orderId: string, input: { tracking: string; courier: string }) {
   const p = z.object({ tracking: z.string().trim().min(4).max(60), courier: z.string().trim().min(2).max(60) }).safeParse(input);
   if (!p.success) return { ok: false, error: "Isi kurir dan nomor resi." } as ActionResult;
-  return run("order.ship", orderId, async (actor) => ({
-    order: await markShipped(orderId, p.data.tracking, p.data.courier, actor),
+  return run("order.tracking", orderId, async (actor) => ({
+    order: await updateTracking(orderId, p.data.tracking, p.data.courier, actor),
     event: "shipped",
   }), p.data);
+}
+
+export async function takeOverAction(orderId: string) {
+  return run("order.takeover", orderId, async (actor) => ({ order: await takeOver(orderId, actor) }));
+}
+
+const proofSchema = z.object({
+  photos: z.array(z.string().regex(/^[0-9a-f-]{36}\/(packing|shipping)-\d+-[a-z0-9]+\.jpg$/)).min(1, "photos").max(6),
+  note: z.string().trim().max(500),
+  takeOver: z.boolean(),
+});
+
+export async function packingAction(orderId: string, input: z.input<typeof proofSchema>) {
+  const p = proofSchema.safeParse(input);
+  if (!p.success || !p.data.photos.every((x) => x.startsWith(`${orderId}/packing-`)))
+    return { ok: false, error: "Upload minimal 1 foto packing." } as ActionResult;
+  return run("order.packed", orderId, async (actor) => ({ order: (await recordPacking(orderId, actor, p.data)).order }), {
+    photos: p.data.photos.length,
+    takeOver: p.data.takeOver,
+  });
+}
+
+export async function shippingAction(orderId: string, input: z.input<typeof proofSchema> & { tracking: string; courier: string }) {
+  const p = proofSchema
+    .extend({ tracking: z.string().trim().min(4).max(60), courier: z.string().trim().min(2).max(60) })
+    .safeParse(input);
+  if (!p.success || !p.data.photos.every((x) => x.startsWith(`${orderId}/shipping-`)))
+    return { ok: false, error: "Isi kurir, nomor resi, dan minimal 1 foto pengiriman." } as ActionResult;
+  const { tracking, courier, ...proof } = p.data;
+  return run("order.ship", orderId, async (actor) => ({
+    order: (await recordShipping(orderId, actor, { ...proof, trackingNumber: tracking, courier })).order,
+    event: "shipped",
+  }), { tracking, courier, takeOver: proof.takeOver });
+}
+
+/** Signed upload slot for a packing/shipping photo (compressed to JPEG in the browser). */
+export async function createFulfillmentUploadAction(orderId: string, stage: "packing" | "shipping", size: number) {
+  await requireStaff();
+  if (!id.safeParse(orderId).success || !["packing", "shipping"].includes(stage) || size > 5 * 1024 * 1024)
+    return { ok: false as const, error: "Foto terlalu besar" };
+  const path = `${orderId}/${stage}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+  const { data, error } = await createServiceClient().storage.from("fulfillment-photos").createSignedUploadUrl(path);
+  if (error || !data) return { ok: false as const, error: "Gagal menyiapkan upload" };
+  return { ok: true as const, path, token: data.token };
 }
 
 export async function markCompletedAction(orderId: string) {

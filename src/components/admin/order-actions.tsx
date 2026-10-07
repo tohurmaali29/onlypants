@@ -1,16 +1,14 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { CheckCircle2, ExternalLink, Loader2, Package, Truck, XCircle } from "lucide-react";
+import { CheckCircle2, ExternalLink, Loader2, XCircle } from "lucide-react";
+import { FulfillmentPanel, type FulfillmentProps } from "@/components/admin/fulfillment-panel";
 import { Card, Field } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import {
   approvePaymentAction,
   cancelOrderAction,
-  markCompletedAction,
-  markProcessingAction,
-  markShippedAction,
   proofUrlAction,
   rejectPaymentAction,
   saveInternalNoteAction,
@@ -35,6 +33,7 @@ type Props = {
     internalNote: string;
   };
   proofs: { id: string; path: string; status: "pending" | "approved" | "rejected"; note: string | null; createdAt: string }[];
+  fulfillment: FulfillmentProps;
 };
 
 const COURIERS = ["JNE REG", "JNE YES", "J&T Express", "SiCepat REG", "AnterAja", "Pos Indonesia", "GoSend", "GrabExpress", "Ambil di toko"];
@@ -52,13 +51,12 @@ function useAction() {
   return { pending, exec };
 }
 
-export function OrderActions({ order, proofs }: Props) {
+export function OrderActions({ order, proofs, fulfillment }: Props) {
   const { pending, exec } = useAction();
   const s = order.status;
   const [cost, setCost] = useState(order.shippingCost?.toString() ?? "");
   const [courier, setCourier] = useState(order.courier ?? "JNE REG");
   const [rejectNote, setRejectNote] = useState("");
-  const [tracking, setTracking] = useState(order.trackingNumber ?? "");
   const [cancelReason, setCancelReason] = useState("");
   const [restock, setRestock] = useState(true);
   const [note, setNote] = useState(order.internalNote);
@@ -169,42 +167,7 @@ export function OrderActions({ order, proofs }: Props) {
         </Card>
       )}
 
-      {s === "paid" && (
-        <Card className="border-primary">
-          <h2 className="mb-3 font-semibold">3. Kemas pesanan</h2>
-          <Button disabled={pending} onClick={() => exec(() => markProcessingAction(order.id), "Ditandai sedang dikemas")}>
-            <Package className="size-4" /> Mulai kemas
-          </Button>
-        </Card>
-      )}
-
-      {(s === "paid" || s === "processing" || s === "shipped") && (
-        <Card className={s === "processing" ? "border-primary" : ""}>
-          <h2 className="mb-3 font-semibold">{s === "shipped" ? "Ubah resi" : "4. Kirim & input resi"}</h2>
-          <form
-            className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
-            onSubmit={(e) => {
-              e.preventDefault();
-              exec(() => markShippedAction(order.id, { tracking, courier }), "Resi disimpan & customer dinotifikasi");
-            }}
-          >
-            <Field label="Kurir">
-              <input list="couriers" value={courier} onChange={(e) => setCourier(e.target.value)} className="input-field" required />
-            </Field>
-            <Field label="Nomor resi">
-              <input value={tracking} onChange={(e) => setTracking(e.target.value)} className="input-field" required />
-            </Field>
-            <Button type="submit" disabled={pending}>
-              <Truck className="size-4" /> Simpan
-            </Button>
-          </form>
-          {s === "shipped" && (
-            <Button variant="secondary" className="mt-4" disabled={pending} onClick={() => exec(() => markCompletedAction(order.id), "Pesanan selesai")}>
-              Tandai selesai
-            </Button>
-          )}
-        </Card>
-      )}
+      <FulfillmentPanel {...fulfillment} />
 
       {!["shipped", "completed", "cancelled", "expired"].includes(s) && (
         <details className="rounded-[var(--radius-card)] border border-line bg-surface p-5">

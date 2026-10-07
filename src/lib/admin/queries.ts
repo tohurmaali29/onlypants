@@ -54,11 +54,12 @@ export async function dashboardStats() {
   };
 }
 
-export type OrderFilter = { status?: OrderStatus | "open"; q?: string; page?: number };
+export type OrderFilter = { status?: OrderStatus | "open"; q?: string; page?: number; assigneeId?: string };
 const PAGE_SIZE = 25;
 
-export async function listOrders({ status, q, page = 1 }: OrderFilter) {
+export async function listOrders({ status, q, page = 1, assigneeId }: OrderFilter) {
   const conds = [];
+  if (assigneeId) conds.push(eq(orders.assigneeId, assigneeId));
   if (status === "open") conds.push(inArray(orders.status, ["awaiting_quote", "awaiting_payment", "payment_review", "paid", "processing"]));
   else if (status) conds.push(eq(orders.status, status));
   if (q) {

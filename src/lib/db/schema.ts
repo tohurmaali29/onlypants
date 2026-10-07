@@ -129,6 +129,9 @@ export const orders = pgTable("orders", {
   cancelledAt: ts("cancelled_at"),
   cancelReason: text("cancel_reason"),
   internalNote: text("internal_note").notNull().default(""),
+  customerId: uuid("customer_id"),
+  claimedBy: uuid("claimed_by"),
+  assigneeId: uuid("assignee_id"),
   createdAt: ts("created_at").notNull().defaultNow(),
   updatedAt: ts("updated_at").notNull().defaultNow(),
 });
@@ -223,3 +226,45 @@ export type OrderStatus = (typeof orderStatus.enumValues)[number];
 export type Product = typeof products.$inferSelect;
 export type Variant = typeof variants.$inferSelect;
 export type Order = typeof orders.$inferSelect;
+
+// ---------------------------------------------------------------- accounts & fulfillment
+// (supabase/migrations/20261008000000_accounts_fulfillment.sql)
+
+export const customers = pgTable("customers", {
+  userId: uuid("user_id").primaryKey(),
+  name: text("name").notNull(),
+  phone: text("phone").notNull().default(""),
+  createdAt: ts("created_at").notNull().defaultNow(),
+  updatedAt: ts("updated_at").notNull().defaultNow(),
+});
+
+export const customerAddresses = pgTable("customer_addresses", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => customers.userId, { onDelete: "cascade" }),
+  label: text("label").notNull().default(""),
+  recipient: text("recipient").notNull(),
+  phone: text("phone").notNull(),
+  line: text("line").notNull(),
+  district: text("district").notNull(),
+  city: text("city").notNull(),
+  province: text("province").notNull(),
+  postalCode: text("postal_code").notNull(),
+  isDefault: boolean("is_default").notNull().default(false),
+  createdAt: ts("created_at").notNull().defaultNow(),
+});
+
+export const fulfillmentStage = pgEnum("fulfillment_stage", ["packing", "shipping"]);
+
+export const fulfillmentSteps = pgTable("fulfillment_steps", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  orderId: uuid("order_id").notNull().references(() => orders.id, { onDelete: "cascade" }),
+  stage: fulfillmentStage("stage").notNull(),
+  actorId: uuid("actor_id").notNull().references(() => staff.userId),
+  tookOverFrom: uuid("took_over_from").references(() => staff.userId),
+  photos: text("photos").array().notNull().default([]),
+  note: text("note").notNull().default(""),
+  createdAt: ts("created_at").notNull().defaultNow(),
+});
+
+export type CustomerAddress = typeof customerAddresses.$inferSelect;
+export type FulfillmentStep = typeof fulfillmentSteps.$inferSelect;
