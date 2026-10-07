@@ -92,80 +92,83 @@ export function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line/70 bg-bg/85 backdrop-blur-md">
-      <div className="container-page flex h-16 items-center gap-4">
-        <button
-          className="-ml-2 grid size-10 place-items-center rounded-full hover:bg-surface-2 md:hidden"
-          onClick={() => setMenuOpen(true)}
-          aria-label={t.nav.menu}
-          aria-expanded={menuOpen}
-          aria-controls="mobile-menu"
-        >
-          <Menu className="size-5" />
-        </button>
-
-        <Link href={`/${locale}`} onClick={closeAll} aria-label="OnlyPants home">
-          <Logo />
-        </Link>
-
-        <nav className="ml-6 hidden items-center gap-6 text-sm md:flex" aria-label="Main">
-          {links.map((l) => (
-            <Link key={l.href} href={l.href} onClick={closeAll} className="text-muted transition-colors hover:text-fg">
-              {l.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="ml-auto flex items-center gap-1 sm:gap-2">
+    <>
+      <header className="sticky top-0 z-50 border-b border-line/70 bg-bg/85 backdrop-blur-md">
+        <div className="container-page flex h-16 items-center gap-4">
           <button
-            className="grid size-10 place-items-center rounded-full hover:bg-surface-2"
-            onClick={() => setSearchOpen((v) => !v)}
-            aria-label={t.nav.search}
-            aria-expanded={searchOpen}
+            className="-ml-2 grid size-10 place-items-center rounded-full hover:bg-surface-2 md:hidden"
+            onClick={() => setMenuOpen(true)}
+            aria-label={t.nav.menu}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
           >
-            <Search className="size-5" />
+            <Menu className="size-5" />
           </button>
-          <div className="hidden sm:block">
-            <LanguageSwitch />
+
+          <Link href={`/${locale}`} onClick={closeAll} aria-label="OnlyPants home">
+            <Logo />
+          </Link>
+
+          <nav className="ml-6 hidden items-center gap-6 text-sm md:flex" aria-label="Main">
+            {links.map((l) => (
+              <Link key={l.href} href={l.href} onClick={closeAll} className="text-muted transition-colors hover:text-fg">
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="ml-auto flex items-center gap-1 sm:gap-2">
+            <button
+              className="grid size-10 place-items-center rounded-full hover:bg-surface-2"
+              onClick={() => setSearchOpen((v) => !v)}
+              aria-label={t.nav.search}
+              aria-expanded={searchOpen}
+            >
+              <Search className="size-5" />
+            </button>
+            <div className="hidden sm:block">
+              <LanguageSwitch />
+            </div>
+            <button
+              className="relative grid size-10 place-items-center rounded-full hover:bg-surface-2"
+              onClick={() => cart.open()}
+              aria-label={`${t.nav.cart}${hydrated && count ? ` (${count})` : ""}`}
+            >
+              <ShoppingBag className="size-5" />
+              {hydrated && count > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 grid min-w-5 place-items-center rounded-full bg-primary px-1 text-[11px] font-bold leading-5 text-white">
+                  {count}
+                </span>
+              )}
+            </button>
           </div>
-          <button
-            className="relative grid size-10 place-items-center rounded-full hover:bg-surface-2"
-            onClick={() => cart.open()}
-            aria-label={`${t.nav.cart}${hydrated && count ? ` (${count})` : ""}`}
-          >
-            <ShoppingBag className="size-5" />
-            {hydrated && count > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 grid min-w-5 place-items-center rounded-full bg-primary px-1 text-[11px] font-bold leading-5 text-white">
-                {count}
-              </span>
-            )}
-          </button>
         </div>
-      </div>
 
-      {searchOpen && (
-        <form
-          role="search"
-          className="container-page pb-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const q = searchRef.current?.value.trim();
-            setSearchOpen(false);
-            router.push(`/${locale}/shop${q ? `?q=${encodeURIComponent(q)}` : ""}`);
-          }}
-        >
-          <label className="relative block">
-            <span className="sr-only">{t.nav.search}</span>
-            <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted" />
-            <input ref={searchRef} type="search" name="q" placeholder={t.nav.searchPlaceholder} className="input-field pl-10" />
-          </label>
-        </form>
-      )}
+        {searchOpen && (
+          <form
+            role="search"
+            className="container-page pb-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const q = searchRef.current?.value.trim();
+              setSearchOpen(false);
+              router.push(`/${locale}/shop${q ? `?q=${encodeURIComponent(q)}` : ""}`);
+            }}
+          >
+            <label className="relative block">
+              <span className="sr-only">{t.nav.search}</span>
+              <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted" />
+              <input ref={searchRef} type="search" name="q" placeholder={t.nav.searchPlaceholder} className="input-field pl-10" />
+            </label>
+          </form>
+        )}
+      </header>
 
-      {/* Mobile menu */}
+      {/* Mobile menu. Must live outside <header>: its backdrop-filter would make the
+          header the containing block for `fixed`, clipping the panel to 64px. */}
       <div
         id="mobile-menu"
-        className={cn("fixed inset-0 z-50 md:hidden", menuOpen ? "visible" : "invisible")}
+        className={cn("fixed inset-0 z-[60] md:hidden", menuOpen ? "visible" : "invisible")}
         aria-hidden={!menuOpen}
       >
         <div
@@ -204,6 +207,6 @@ export function Header() {
           </div>
         </nav>
       </div>
-    </header>
+    </>
   );
 }

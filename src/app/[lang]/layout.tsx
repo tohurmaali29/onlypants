@@ -1,10 +1,12 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { Archivo_Black, Poppins } from "next/font/google";
 import { lang } from "next/root-params";
 import { Analytics } from "@vercel/analytics/next";
 import "../globals.css";
 import { I18nProvider } from "@/components/i18n-provider";
 import { Header } from "@/components/site/header";
+import { NavHistory } from "@/components/site/nav-history";
 import { Footer } from "@/components/site/footer";
 import { CartDrawer } from "@/components/cart/cart-drawer";
 import { Toaster } from "@/components/ui/toast";
@@ -71,6 +73,9 @@ export default async function StoreLayout({ children }: LayoutProps<"/[lang]">) 
           </main>
           <Footer />
           <CartDrawer />
+          <Suspense>
+            <NavHistory />
+          </Suspense>
           <Toaster />
         </I18nProvider>
         <Analytics />
