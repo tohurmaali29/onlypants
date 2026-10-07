@@ -8,6 +8,9 @@ import { normalizePhone } from "@/lib/format";
 import { notifyOrder } from "@/lib/notify";
 import { placeOrder, StockError } from "@/lib/orders/service";
 import { rateLimit } from "@/lib/rate-limit";
+import { saveAddress } from "@/lib/addresses";
+import { db, schema as tables } from "@/lib/db";
+import { getViewer } from "@/lib/viewer";
 
 const schema = z.object({
   locale: z.enum(["id", "en"]),
@@ -25,6 +28,7 @@ const schema = z.object({
   postalCode: z.string().regex(/^\d{5}$/),
   note: z.string().trim().max(500).default(""),
   terms: z.literal(true),
+  saveAddress: z.boolean().optional(),
   website: z.string().max(0).optional(), // honeypot
   items: z.array(z.object({ variantId: z.uuid(), qty: z.number().int().min(1).max(20) })).min(1).max(30),
 });
@@ -43,10 +47,17 @@ export async function checkout(input: CheckoutInput): Promise<CheckoutResult> {
     return { ok: false, error: "validation", fields: [...new Set(parsed.error.issues.map((i) => String(i.path[0])))] };
   }
   const d = parsed.data;
-  if (!(await rateLimit("checkout", 8, 600))) return { ok: false, error: "rateLimit" };
+  if (!(await rateLimit("checkout", 30, 600))) return { ok: false, error: "rateLimit" };
+
+  // Optional account: link the order and remember the address.
+  const viewer = await getViewer();
+  if (viewer) {
+    await db.insert(tables.customers).values({ userId: viewer.userId, name: d.customerName, phone: d.phone }).onConflictDoNothing();
+  }
 
   try {
     const { order, key } = await placeOrder({
+      customerId: viewer?.userId ?? null,
       locale: d.locale,
       customerName: d.customerName,
       email: d.email.toLowerCase(),
@@ -56,6 +67,19 @@ export async function checkout(input: CheckoutInput): Promise<CheckoutResult> {
       items: d.items,
     });
     updateTag(CATALOG_TAG);
+    if (viewer && d.saveAddress) {
+      await saveAddress(viewer.userId, {
+        label: "",
+        recipient: d.customerName,
+        phone: d.phone,
+        line: d.line,
+        district: d.district,
+        city: d.city,
+        province: d.province,
+        postalCode: d.postalCode,
+        isDefault: false,
+      }).catch((err) => console.error("save address failed", err));
+    }
     after(() => notifyOrder("placed", order));
     return { ok: true, url: `/${d.locale}/order/${order.code}?k=${key}` };
   } catch (e) {

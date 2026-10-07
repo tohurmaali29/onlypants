@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next";
 import "../globals.css";
 import { I18nProvider } from "@/components/i18n-provider";
 import { Header } from "@/components/site/header";
+import { AccountButton, AccountButtonFallback } from "@/components/site/account-button";
 import { NavHistory } from "@/components/site/nav-history";
 import { Footer } from "@/components/site/footer";
 import { CartDrawer } from "@/components/cart/cart-drawer";
@@ -67,7 +68,18 @@ export default async function StoreLayout({ children }: LayoutProps<"/[lang]">) 
           >
             Skip to content
           </a>
-          <Header />
+          <Header
+            account={
+              <Suspense fallback={<AccountButtonFallback />}>
+                <AccountButton />
+              </Suspense>
+            }
+            mobileAccount={
+              <Suspense fallback={<AccountButtonFallback variant="menu" />}>
+                <AccountButton variant="menu" />
+              </Suspense>
+            }
+          />
           <main id="main" className="flex-1">
             {children}
           </main>

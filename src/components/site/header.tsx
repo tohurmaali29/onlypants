@@ -59,7 +59,7 @@ function LanguageSwitch() {
   );
 }
 
-export function Header() {
+export function Header({ account, mobileAccount }: { account: React.ReactNode; mobileAccount: React.ReactNode }) {
   const { locale, t } = useI18n();
   const { count, hydrated } = useCart();
   const router = useRouter();
@@ -129,6 +129,7 @@ export function Header() {
             <div className="hidden sm:block">
               <LanguageSwitch />
             </div>
+            <div onClick={closeAll}>{account}</div>
             <button
               className="relative grid size-10 place-items-center rounded-full hover:bg-surface-2"
               onClick={() => cart.open()}
@@ -201,6 +202,9 @@ export function Header() {
               {l.label}
             </Link>
           ))}
+          <div onClick={closeAll} className="mt-2 border-t border-line pt-2">
+            {mobileAccount}
+          </div>
           <div className="mt-auto flex items-center justify-between border-t border-line pt-4">
             <span className="text-sm text-muted">{t.nav.language}</span>
             <LanguageSwitch />

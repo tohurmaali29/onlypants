@@ -43,7 +43,7 @@ npm run dev             # http://localhost:3000
 | `npm test` | Unit test (Vitest) |
 | `npm run test:e2e` | Test end-to-end (Playwright, butuh Supabase lokal + `seed:admins`) |
 
-Akun admin lokal: `owner@onlypants.test` / `staff@onlypants.test`, password `onlypants123`.
+Akun admin lokal: `owner@onlypants.test` / `staff@onlypants.test`, password `onlypants123`. Semua orang (customer, staff, owner) masuk lewat tombol **Masuk** di toko (`/id/login`); staff otomatis diarahkan ke `/admin`.
 
 ## Struktur
 

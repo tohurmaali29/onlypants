@@ -3,6 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 // Needs the local stack: `npm run db:start` (fresh `npm run db:reset` recommended) and seeded admins.
 export default defineConfig({
   testDir: "e2e",
+  globalSetup: "./e2e/global-setup.ts",
   fullyParallel: false,
   workers: 1,
   retries: process.env.CI ? 1 : 0,

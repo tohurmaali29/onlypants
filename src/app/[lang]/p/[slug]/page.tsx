@@ -3,7 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ChevronLeft, MessageCircle } from "lucide-react";
-import { AddToCart } from "@/components/product/add-to-cart";
+import { AddToCartSkeleton, LiveAddToCart } from "@/components/product/live-add-to-cart";
 import { BackLink } from "@/components/site/nav-history";
 import { ProductCard, discountPercent } from "@/components/product/product-card";
 import { getCatalog, getProduct, localized } from "@/lib/catalog";
@@ -111,16 +111,18 @@ async function ProductDetails({ params }: Pick<PageProps<"/[lang]/p/[slug]">, "p
           </div>
 
           <div className="mt-8">
-            <AddToCart
-              product={{
-                slug: product.slug,
-                nameId: product.nameId,
-                nameEn: product.nameEn,
-                price: product.price,
-                image: product.images[0]?.url ?? "",
-              }}
-              variants={product.variants}
-            />
+            <Suspense fallback={<AddToCartSkeleton />}>
+              <LiveAddToCart
+                product={{
+                  slug: product.slug,
+                  nameId: product.nameId,
+                  nameEn: product.nameEn,
+                  price: product.price,
+                  image: product.images[0]?.url ?? "",
+                }}
+                variants={product.variants}
+              />
+            </Suspense>
           </div>
 
           {store.whatsapp && (

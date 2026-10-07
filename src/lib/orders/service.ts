@@ -39,6 +39,7 @@ async function transition(
 // ------------------------------------------------------------------ customer
 
 export type PlaceOrderInput = {
+  customerId?: string | null;
   locale: "id" | "en";
   customerName: string;
   email: string;
@@ -105,6 +106,7 @@ export async function placeOrder(input: PlaceOrderInput) {
         .values({
           code,
           accessTokenHash: hashToken(orderAccessKey(code)),
+          customerId: input.customerId ?? null,
           locale: input.locale,
           customerName: input.customerName,
           email: input.email,

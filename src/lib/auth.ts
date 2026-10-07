@@ -28,7 +28,7 @@ export const getStaff = cache(async (): Promise<StaffUser | null> => {
  */
 export async function requireStaff(role?: "owner"): Promise<StaffUser> {
   const staff = await getStaff();
-  if (!staff) redirect("/admin/login");
+  if (!staff) redirect("/id/login?next=/admin");
   if (role === "owner" && staff.role !== "owner") redirect("/admin?denied=1");
   return staff;
 }
