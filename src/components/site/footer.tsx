@@ -88,6 +88,8 @@ export async function Footer() {
           <div className="flex gap-4">
             <Link href={p("/help/privacy")} className="hover:text-fg">{t.footer.privacy}</Link>
             <Link href={p("/help/terms")} className="hover:text-fg">{t.footer.terms}</Link>
+            {/* CC-BY attribution for the demo catalog photos; remove with the demo items. */}
+            <a href="/images/products/demo/CREDITS.md" className="hover:text-fg">{t.footer.photoCredits}</a>
           </div>
         </div>
       </div>
