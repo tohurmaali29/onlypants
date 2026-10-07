@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ChevronLeft, MessageCircle } from "lucide-react";
 import { AddToCart } from "@/components/product/add-to-cart";
+import { BackLink } from "@/components/site/nav-history";
 import { ProductCard, discountPercent } from "@/components/product/product-card";
 import { getCatalog, getProduct, localized } from "@/lib/catalog";
 import { formatPrice, waLink } from "@/lib/format";
@@ -202,9 +202,9 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/p/[slug
   const { locale, t } = await getDictionary();
   return (
     <div className="container-page py-6 md:py-10">
-      <Link href={`/${locale}/shop`} className="mb-6 inline-flex items-center gap-1 text-sm text-muted hover:text-fg">
+      <BackLink href={`/${locale}/shop`} className="mb-6 inline-flex items-center gap-1 text-sm text-muted hover:text-fg">
         <ChevronLeft className="size-4" /> {t.nav.shop}
-      </Link>
+      </BackLink>
       <Suspense fallback={<DetailSkeleton />}>
         <ProductDetails params={params} />
       </Suspense>

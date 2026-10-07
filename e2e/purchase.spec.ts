@@ -7,7 +7,7 @@ test("customer checks out, admin quotes, customer uploads proof, admin approves 
   await page.goto("/id/p/onlypants-gray-sweatpants");
   const add = page.getByRole("button", { name: /Tambah ke keranjang/ });
   await expect(add).toBeDisabled(); // size required
-  await page.getByText("L", { exact: true }).click();
+  await page.locator("label:has(input[name=size]:not([disabled]))").first().click();
   await add.click();
   await expect(page.locator("dialog[open]")).toBeVisible();
   await page.getByRole("link", { name: "Checkout" }).click();
@@ -75,4 +75,25 @@ test("no horizontal scroll on key pages", async ({ page }) => {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow, path).toBeLessThanOrEqual(0);
   }
+});
+
+test("mobile menu covers the full screen", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "mobile only");
+  await page.goto("/id/shop");
+  await page.click("button[aria-controls=mobile-menu]");
+  const box = await page.locator("#mobile-menu nav").boundingBox();
+  expect(box!.height).toBeGreaterThan(page.viewportSize()!.height - 2);
+});
+
+test("back link from a product returns to the same scroll position", async ({ page }) => {
+  await page.goto("/id/shop");
+  const card = page.locator('main a[href*="/p/"]:visible').nth(5);
+  await card.scrollIntoViewIfNeeded();
+  const before = await page.evaluate(() => scrollY);
+  expect(before).toBeGreaterThan(0);
+  await card.click();
+  await page.waitForURL(/\/p\//);
+  await page.locator('main a[href="/id/shop"]').first().click();
+  await page.waitForURL(/\/id\/shop$/);
+  await expect.poll(() => page.evaluate(() => scrollY)).toBe(before);
 });
