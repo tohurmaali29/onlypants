@@ -2,7 +2,9 @@
 
 Toko thrift online untuk celana vintage, streetwear, dan merch OnlyPants. Pembayaran memakai QRIS statis dengan verifikasi manual oleh admin, dan stok dikelola secara atomik di database.
 
-Spesifikasi produk lengkap ada di [docs/PRD.md](docs/PRD.md). Versi situs statis lama tersimpan di tag `v0-legacy`.
+- Spesifikasi produk: [docs/PRD.md](docs/PRD.md)
+- Panduan deploy ke Supabase + Vercel: [docs/DEPLOY.md](docs/DEPLOY.md)
+- Versi situs statis lama tersimpan di tag `v0-legacy`.
 
 ## Stack
 
@@ -39,7 +41,9 @@ npm run dev             # http://localhost:3000
 | `npm run typecheck` | Cek tipe TypeScript |
 | `npm run lint` | ESLint |
 | `npm test` | Unit test (Vitest) |
-| `npm run test:e2e` | Test end-to-end (Playwright) |
+| `npm run test:e2e` | Test end-to-end (Playwright, butuh Supabase lokal + `seed:admins`) |
+
+Akun admin lokal: `owner@onlypants.test` / `staff@onlypants.test`, password `onlypants123`.
 
 ## Struktur
 

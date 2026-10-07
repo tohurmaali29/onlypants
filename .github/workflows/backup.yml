@@ -1,0 +1,37 @@
+name: Weekly database backup
+
+# The repository is public, so the dump is encrypted before it becomes an artifact.
+# Secrets needed: SUPABASE_DB_URL (session pooler URL, port 5432) and BACKUP_PASSPHRASE.
+# Restore: gpg -d onlypants-YYYY-MM-DD.sql.gz.gpg | gunzip | psql "$DATABASE_URL"
+
+on:
+  schedule:
+    - cron: "0 19 * * 0" # Monday 02:00 WIB
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install pg_dump 17
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y -qq postgresql-client-17
+      - name: Dump, compress, encrypt
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          test -n "$DB_URL" && test -n "$PASSPHRASE"
+          f="onlypants-$(date -u +%F).sql.gz.gpg"
+          /usr/lib/postgresql/17/bin/pg_dump "$DB_URL" --schema=public --no-owner --no-privileges \
+            | gzip -9 \
+            | gpg --batch --yes --pinentry-mode loopback --passphrase "$PASSPHRASE" --symmetric --cipher-algo AES256 -o "$f"
+          echo "FILE=$f" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.FILE }}
+          path: ${{ env.FILE }}
+          retention-days: 30

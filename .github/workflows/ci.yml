@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+
+      # Local Supabase (Postgres + Auth + Storage) for integration tests and the build's prerender.
+      - run: npx supabase start -x realtime,vector,logflare,edge-runtime,studio,imgproxy
+      - name: Write .env.local from the local stack
+        run: |
+          npx supabase status -o env \
+            | sed -n 's/^DB_URL=/DATABASE_URL=/p; s/^API_URL=/NEXT_PUBLIC_SUPABASE_URL=/p; s/^PUBLISHABLE_KEY=/NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=/p; s/^SECRET_KEY=/SUPABASE_SECRET_KEY=/p' > .env.local
+          echo 'ORDER_LINK_SECRET=ci-secret' >> .env.local
+          echo 'CRON_SECRET=ci-cron' >> .env.local
+
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
