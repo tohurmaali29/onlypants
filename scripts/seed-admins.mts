@@ -14,7 +14,13 @@ const accounts = [
   { email: process.env.OWNER_EMAIL ?? "owner@onlypants.test", name: "Owner OnlyPants", role: "owner" },
   { email: process.env.STAFF_EMAIL ?? "staff@onlypants.test", name: "Staff OnlyPants", role: "staff" },
 ] as const;
-const password = process.env.ADMIN_PASSWORD ?? "onlypants123";
+const isLocal = /@(127\.0\.0\.1|localhost):/.test(process.env.DATABASE_URL ?? "");
+const password = process.env.ADMIN_PASSWORD ?? (isLocal ? "onlypants123" : "");
+// The local default is published in the README, so never use it on a hosted database.
+if (!isLocal && (password.length < 10 || password === "onlypants123")) {
+  console.error("Set ADMIN_PASSWORD (min 10 characters) when seeding a hosted database.");
+  process.exit(1);
+}
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, {
   auth: { persistSession: false },
