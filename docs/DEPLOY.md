@@ -17,8 +17,7 @@ npx supabase db push --include-seed              # tabel, fungsi stok, cron, buc
 
 3. Catat nilai berikut dari dashboard:
    - **Project Settings → API**: Project URL, Publishable key, Secret key.
-   - **Connect → Transaction pooler** (port 6543): connection string untuk `DATABASE_URL`.
-   - **Connect → Session pooler** (port 5432): untuk backup mingguan.
+   - **Connect → Session pooler** (port 5432): connection string untuk `DATABASE_URL` dan backup mingguan. Jangan pakai transaction pooler (6543): query paralel bisa menggantung.
 
 ### Pengaturan Auth (login customer & admin)
 
@@ -45,7 +44,7 @@ Batas Gmail ±500 email/hari. Kalau nanti punya domain, ganti ke Resend atau SMT
 
 | Nama | Nilai |
 |---|---|
-| `DATABASE_URL` | Transaction pooler URL (port 6543) |
+| `DATABASE_URL` | Session pooler URL (port 5432) |
 | `NEXT_PUBLIC_SUPABASE_URL` | Project URL |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable key |
 | `SUPABASE_SECRET_KEY` | Secret key |
